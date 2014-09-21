@@ -55,8 +55,12 @@ int exec_with_paths (char *command, char *args[])
 
     if (execv(command_with_path,args) != -1) 
     {
+
+      free (command_with_path);
       return 0;
     }
+  
+    free (command_with_path);
   }
 
   perror("execve error");
