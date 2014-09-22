@@ -49,7 +49,7 @@ int exec_with_paths (char *command, char *args[])
   int i =0;
   for (i = 0; i < NELEMS(paths_array); i++)
   {
-    char *command_with_path = (char*) malloc(sizeof(command) + sizeof (paths_array[i]) +2 );
+    char *command_with_path = (char*) malloc(sizeof(command) + sizeof (paths_array[i]) +3 );
     strcpy (command_with_path,paths_array[i]);
     strcat (command_with_path, command);
 
@@ -102,8 +102,31 @@ runcmd(struct cmd *cmd)
 
   case '|':
     pcmd = (struct pipecmd*)cmd;
-    fprintf(stderr, "pipe not implemented\n");
-    // Your code here ...
+    // Create a pipe for interprocess communication.
+    pipe(p);
+
+    if ( fork1() == 0)
+    {
+      // created child process as read end of the pipe
+      close (0); // close stdin of the child process
+      dup (p[0]); // duplicate the read end of the pipe into the child.
+      close(p[1]);
+      runcmd (pcmd -> right);
+      close(p[0]); // we can do this because the read will block until the write end in parent has finished.
+
+
+    }
+
+    else 
+    {
+      close (1);
+      dup (p[1]);
+      runcmd (pcmd -> left);
+      close (p[0]);
+      close (p[1]);
+      close (0);
+    }
+
     break;
   }    
   exit(0);
