@@ -105,29 +105,29 @@ runcmd(struct cmd *cmd)
     // Create a pipe for interprocess communication.
     pipe(p);
 
-    if ( fork1() == 0)
+    if(fork1() == 0)
     {
-      // created child process as read end of the pipe
-      close (0); // close stdin of the child process
-      dup (p[0]); // duplicate the read end of the pipe into the child.
+
+      close(1);
+      dup(p[1]);
+      close(p[0]);
       close(p[1]);
-      runcmd (pcmd -> right);
-      close(p[0]); // we can do this because the read will block until the write end in parent has finished.
-
-
+      runcmd(pcmd -> left);
     }
-
-    else 
+    if(fork1() == 0)
     {
-      close (1);
-      dup (p[1]);
-      runcmd (pcmd -> left);
-      close (p[0]);
-      close (p[1]);
-      close (0);
+      close(0);
+      dup(p[0]);
+      close(p[0]);
+      close(p[1]);
+      runcmd(pcmd -> right);
     }
+    close(p[0]);
+    close(p[1]);
+    wait();
+    wait();
 
-    break;
+
   }    
   exit(0);
 }
