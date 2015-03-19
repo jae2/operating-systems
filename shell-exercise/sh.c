@@ -44,7 +44,7 @@ struct cmd *parsecmd(char*);
 int exec_with_paths (char *command, char *args[]) 
 {
   const char *paths_array[] = {
-    "", "/bin/", "/usr/bin/", "/usr/local/bin"
+    "", "/bin/", "/usr/bin/", "/usr/local/bin/"
   };
   int i =0;
   for (i = 0; i < NELEMS(paths_array); i++)
